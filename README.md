@@ -12,7 +12,7 @@ This project includes Claude Code skills to help with AI agent development:
 
 ### AI Solution Design Skill
 
-Located in `.claude/skills/ai-solution-design.md`
+Located in `.claude/skills/ai-solution-design/ai-solution-design.md`
 
 **Purpose:** Transform a simple idea into a comprehensive AI agent solution design with user stories.
 
