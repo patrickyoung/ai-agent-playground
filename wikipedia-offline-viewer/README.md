@@ -241,23 +241,77 @@ Includes `DESIGN_NOTES.md` explaining the philosophy behind the implementation a
 
 ---
 
+### 📁 Prime - ThePrimeagen's "Get It Done" Version
+
+**Experience:** Professional developer, streamer, performance enthusiast
+**File:** `prime/wiki_archive.py`
+
+**Philosophy:**
+"Fast. Simple. No over-engineering. We have 4 hours, let's build something that WORKS and is FAST."
+
+**Characteristics:**
+- **ThreadPoolExecutor over async** - "Simpler mental model, threads are fine for I/O"
+- **Concurrent downloads** - Fast where it matters
+- **Minimal class structure** - One class, no over-abstraction
+- **Type hints without ceremony** - Types where they add value
+- **Pragmatic error handling** - Specific where it matters, broad where it doesn't
+- **No argparse** - "For two arguments? Keep it simple"
+- **Comments with personality** - "Chat, we're gonna download Wikipedia pages"
+- **Clean regex sanitization** - Safe filenames without complexity
+
+**What Makes This "Prime's Style":**
+- Pragmatic over perfect
+- Fast enough without premature optimization
+- Simple over clever
+- Ships in 4 hours
+- ThreadPoolExecutor: "async is overkill and threads are fine for I/O bound work. Fight me."
+- Minimal dependencies
+- Comments explain WHY not WHAT
+- "YAGNI" - You Ain't Gonna Need It
+
+**Compared to Other Versions:**
+- **vs Year 5:** Simpler code, 80% of the speed, 50% of the complexity
+- **vs Guido:** Similar philosophy (simplicity), but Prime adds concurrency
+- **vs Year 1:** More pragmatic, less "proper" OOP
+- **Prime's self-rating:** "8.8/10 - not perfect, but good enough shipped"
+
+**The Hot Take (from Prime's review):**
+> "Good enough shipped beats perfect in your head. ThreadPoolExecutor is simpler than async, faster than sequential. That's the sweet spot."
+
+**How to run:**
+```bash
+cd prime
+pip install -r requirements.txt
+python wiki_archive.py https://en.wikipedia.org/wiki/Python_(programming_language) my_archive
+
+# Simple CLI - just URL and optional output dir
+python wiki_archive.py https://en.wikipedia.org/wiki/Vim
+```
+
+**Special Feature:**
+Includes `PRIME_REVIEW.md` with Prime's self-critique and detailed comparisons to all other versions.
+
+---
+
 ## Comparison Table
 
-| Feature | Day 1 | Week 1 | Month 1 | Year 1 | Year 5 | Guido |
-|---------|-------|--------|---------|--------|--------|-------|
-| **Works** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Error Handling** | ❌ | Basic | Good | Excellent | Comprehensive | Exemplary |
-| **User Input** | ❌ | Console | Console | CLI Args | CLI Args + Config | CLI Args |
-| **External Libraries** | urllib | urllib | requests + BS4 | requests + BS4 | aiohttp + BS4 + tqdm | requests + BS4 |
-| **Code Organization** | None | Functions | Functions + main | Classes + modules | Classes + types | Classes + types |
-| **Downloads Assets** | ❌ | ❌ | Partial | ✅ CSS + Images | ✅ All assets | ✅ CSS + Images |
-| **Documentation** | Minimal | Basic | Good | Excellent | Professional | Exemplary |
-| **Performance** | N/A | Slow | Slow | Moderate | Fast (async) | Moderate |
-| **Configurability** | None | Minimal | Basic | Good | Extensive | Focused |
-| **Production Ready** | ❌ | ❌ | ❌ | Almost | ✅ | ✅ |
-| **Type Hints** | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ Complete |
-| **Readability** | Poor | Fair | Good | Very Good | Good | Exceptional |
-| **Educational Value** | Low | Low | Medium | High | High | Highest |
+| Feature | Day 1 | Week 1 | Month 1 | Year 1 | Year 5 | Guido | Prime |
+|---------|-------|--------|---------|--------|--------|-------|-------|
+| **Works** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Error Handling** | ❌ | Basic | Good | Excellent | Comprehensive | Exemplary | Pragmatic |
+| **User Input** | ❌ | Console | Console | CLI Args | CLI Args + Config | CLI Args | CLI Args (simple) |
+| **External Libraries** | urllib | urllib | requests + BS4 | requests + BS4 | aiohttp + BS4 + tqdm | requests + BS4 | requests + BS4 |
+| **Code Organization** | None | Functions | Functions + main | Classes + modules | Classes + types | Classes + types | Class + types |
+| **Downloads Assets** | ❌ | ❌ | Partial | ✅ CSS + Images | ✅ All assets | ✅ CSS + Images | ✅ CSS + Images |
+| **Documentation** | Minimal | Basic | Good | Excellent | Professional | Exemplary | Minimal + personality |
+| **Performance** | N/A | Slow | Slow | Moderate | Fast (async) | Moderate | Fast (threads) |
+| **Configurability** | None | Minimal | Basic | Good | Extensive | Focused | Minimal |
+| **Production Ready** | ❌ | ❌ | ❌ | Almost | ✅ | ✅ | ✅ |
+| **Type Hints** | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ Complete | ✅ Pragmatic |
+| **Readability** | Poor | Fair | Good | Very Good | Good | Exceptional | Very Good |
+| **Educational Value** | Low | Low | Medium | High | High | Highest | High (pragmatism) |
+| **Complexity** | Too Simple | Simple | Moderate | Moderate | Complex | Moderate | Simple |
+| **Ships Fast** | ❌ | ✅ | ✅ | ✅ | Maybe | ✅ | ✅✅ |
 
 ---
 
@@ -323,6 +377,11 @@ python wiki_archiver_pro.py https://en.wikipedia.org/wiki/Python
 cd guido
 pip install -r requirements.txt
 python wiki_archiver.py https://en.wikipedia.org/wiki/Python
+
+# Prime (requires dependencies)
+cd prime
+pip install -r requirements.txt
+python wiki_archive.py https://en.wikipedia.org/wiki/Python my_archive
 ```
 
 ---
@@ -335,6 +394,7 @@ python wiki_archiver.py https://en.wikipedia.org/wiki/Python
 4. **Different tools for different skills** - More experienced developers use more sophisticated tools
 5. **Best practices are learned gradually** - Error handling, logging, testing, etc. come with experience
 6. **Master developers know when to keep it simple** - Guido's version shows that the best code isn't always the most advanced; readability and maintainability often trump optimization
+7. **Pragmatism wins** - Prime's version demonstrates the "sweet spot" between simplicity and performance; sometimes ThreadPoolExecutor is better than async, and "good enough shipped" beats "perfect in your head"
 
 ---
 
