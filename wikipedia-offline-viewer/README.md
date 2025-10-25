@@ -184,20 +184,80 @@ python wiki_archiver_pro.py --help
 
 ---
 
+### 📁 Guido - As Python's Creator Would Write It
+
+**Experience:** Creator of Python (1989-present)
+**File:** `guido/wiki_archiver.py`
+
+**Philosophy:**
+This implementation demonstrates how Guido van Rossum, Python's creator, might approach the task. It embodies the principles of **PEP 20 (The Zen of Python)** that he wrote:
+- Beautiful is better than ugly
+- Explicit is better than implicit
+- Simple is better than complex
+- Readability counts
+
+**Characteristics:**
+- **Type hints everywhere** - Guido championed PEP 484
+- **Dataclasses** - Uses PEP 557 for clean data structures
+- **Exceptional documentation** - Every function has clear docstrings explaining "why"
+- **Pragmatic choices** - Uses best tools but doesn't over-engineer
+- **Readability focus** - Code optimized for human understanding
+- **Educational comments** - Inline notes explain Python best practices
+- **PEP 8 compliant** - Perfect adherence to style guide
+- **Synchronous approach** - Simpler is better for this use case
+
+**What Makes This "Guido's Style":**
+- Prefers clarity over cleverness
+- Type hints as documentation and tooling support
+- Comprehensive but concise docstrings
+- Clean error handling with specific exceptions
+- Uses standard library where reasonable (html.parser)
+- Comments explain design decisions, not just code
+- Single clear path through the code
+- Proper Unix exit codes and signal handling
+
+**Compared to Year 5 Version:**
+The Year 5 developer uses async/await and complex optimization. Guido's version shows that **experienced developers know when NOT to use advanced features**. For this task:
+- Synchronous code is simpler and sufficient
+- Sequential downloads are fine for reasonable page sizes
+- Readability matters more than peak performance
+- Code should teach good practices
+
+**How to run:**
+```bash
+cd guido
+pip install -r requirements.txt
+python wiki_archiver.py https://en.wikipedia.org/wiki/Python_(programming_language)
+
+# See excellent help text:
+python wiki_archiver.py --help
+
+# Read the design notes:
+cat DESIGN_NOTES.md
+```
+
+**Special Feature:**
+Includes `DESIGN_NOTES.md` explaining the philosophy behind the implementation and how it embodies Python's design principles.
+
+---
+
 ## Comparison Table
 
-| Feature | Day 1 | Week 1 | Month 1 | Year 1 | Year 5 |
-|---------|-------|--------|---------|--------|--------|
-| **Works** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Error Handling** | ❌ | Basic | Good | Excellent | Comprehensive |
-| **User Input** | ❌ | Console | Console | CLI Args | CLI Args + Config |
-| **External Libraries** | urllib | urllib | requests + BS4 | requests + BS4 | aiohttp + BS4 + tqdm |
-| **Code Organization** | None | Functions | Functions + main | Classes + modules | Classes + types |
-| **Downloads Assets** | ❌ | ❌ | Partial | ✅ CSS + Images | ✅ All assets |
-| **Documentation** | Minimal | Basic | Good | Excellent | Professional |
-| **Performance** | N/A | Slow | Slow | Moderate | Fast (async) |
-| **Configurability** | None | Minimal | Basic | Good | Extensive |
-| **Production Ready** | ❌ | ❌ | ❌ | Almost | ✅ |
+| Feature | Day 1 | Week 1 | Month 1 | Year 1 | Year 5 | Guido |
+|---------|-------|--------|---------|--------|--------|-------|
+| **Works** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Error Handling** | ❌ | Basic | Good | Excellent | Comprehensive | Exemplary |
+| **User Input** | ❌ | Console | Console | CLI Args | CLI Args + Config | CLI Args |
+| **External Libraries** | urllib | urllib | requests + BS4 | requests + BS4 | aiohttp + BS4 + tqdm | requests + BS4 |
+| **Code Organization** | None | Functions | Functions + main | Classes + modules | Classes + types | Classes + types |
+| **Downloads Assets** | ❌ | ❌ | Partial | ✅ CSS + Images | ✅ All assets | ✅ CSS + Images |
+| **Documentation** | Minimal | Basic | Good | Excellent | Professional | Exemplary |
+| **Performance** | N/A | Slow | Slow | Moderate | Fast (async) | Moderate |
+| **Configurability** | None | Minimal | Basic | Good | Extensive | Focused |
+| **Production Ready** | ❌ | ❌ | ❌ | Almost | ✅ | ✅ |
+| **Type Hints** | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ Complete |
+| **Readability** | Poor | Fair | Good | Very Good | Good | Exceptional |
+| **Educational Value** | Low | Low | Medium | High | High | Highest |
 
 ---
 
@@ -258,6 +318,11 @@ python wiki_archiver.py https://en.wikipedia.org/wiki/Python
 cd year5
 pip install -r requirements.txt
 python wiki_archiver_pro.py https://en.wikipedia.org/wiki/Python
+
+# Guido (requires dependencies)
+cd guido
+pip install -r requirements.txt
+python wiki_archiver.py https://en.wikipedia.org/wiki/Python
 ```
 
 ---
@@ -269,6 +334,7 @@ python wiki_archiver_pro.py https://en.wikipedia.org/wiki/Python
 3. **Professional quality takes time** - Production-ready code requires years of experience
 4. **Different tools for different skills** - More experienced developers use more sophisticated tools
 5. **Best practices are learned gradually** - Error handling, logging, testing, etc. come with experience
+6. **Master developers know when to keep it simple** - Guido's version shows that the best code isn't always the most advanced; readability and maintainability often trump optimization
 
 ---
 
