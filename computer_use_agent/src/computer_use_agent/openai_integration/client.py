@@ -10,14 +10,22 @@ Following Guido's principles:
 """
 
 import logging
+import time
 from typing import Any, Dict, List, Optional
 
-from openai import OpenAI
+from openai import APIError, OpenAI, RateLimitError
 from openai.types.chat import ChatCompletion, ChatCompletionMessage
 
 from computer_use_agent.openai_integration.tools import get_desktop_tools
 
 logger = logging.getLogger(__name__)
+
+# Maximum number of messages to keep in conversation history
+MAX_HISTORY_MESSAGES = 20
+
+# Rate limit retry configuration
+MAX_RETRIES = 3
+INITIAL_RETRY_DELAY = 2  # seconds
 
 
 class OpenAIClient:
@@ -95,20 +103,18 @@ class OpenAIClient:
         system_message = self._build_system_message(system_context)
         messages.append({'role': 'system', 'content': system_message})
 
+        # Trim conversation history to prevent context overflow
+        self._trim_history()
+
         # Add conversation history for context
         messages.extend(self.conversation_history)
 
         # Add user command
         messages.append({'role': 'user', 'content': command})
 
-        # Call OpenAI with tools
+        # Call OpenAI with tools (with retry logic for rate limits)
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                tools=self.tools,
-                tool_choice='auto',  # Let model decide when to use tools
-            )
+            response = self._call_openai_with_retry(messages)
 
             # Update conversation history
             self.conversation_history.append({'role': 'user', 'content': command})
@@ -176,6 +182,68 @@ class OpenAIClient:
             base_message += f'\n\nCurrent desktop state:\n{context}'
 
         return base_message
+
+    def _call_openai_with_retry(self, messages: List[Dict[str, Any]]) -> ChatCompletion:
+        """Call OpenAI API with exponential backoff retry for rate limits.
+
+        Args:
+            messages: List of conversation messages.
+
+        Returns:
+            ChatCompletion response from OpenAI.
+
+        Raises:
+            RateLimitError: If max retries exceeded.
+            APIError: If API call fails for non-rate-limit reasons.
+        """
+        for attempt in range(MAX_RETRIES):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    tools=self.tools,
+                    tool_choice='auto',
+                )
+
+                # Log token usage
+                if response.usage:
+                    logger.info(
+                        f'OpenAI usage: {response.usage.total_tokens} tokens '
+                        f'(prompt: {response.usage.prompt_tokens}, '
+                        f'completion: {response.usage.completion_tokens})'
+                    )
+
+                return response
+
+            except RateLimitError as e:
+                if attempt == MAX_RETRIES - 1:
+                    logger.error('Max retries exceeded for rate limit')
+                    raise
+
+                wait_time = INITIAL_RETRY_DELAY * (2**attempt)  # Exponential backoff
+                logger.warning(
+                    f'Rate limited (attempt {attempt + 1}/{MAX_RETRIES}), '
+                    f'waiting {wait_time}s before retry'
+                )
+                time.sleep(wait_time)
+
+            except APIError as e:
+                logger.error(f'OpenAI API error: {e}')
+                raise
+
+    def _trim_history(self) -> None:
+        """Trim conversation history to prevent context window overflow.
+
+        Keeps only the most recent messages up to MAX_HISTORY_MESSAGES.
+        This prevents hitting OpenAI's context length limits.
+        """
+        if len(self.conversation_history) > MAX_HISTORY_MESSAGES:
+            messages_to_remove = len(self.conversation_history) - MAX_HISTORY_MESSAGES
+            logger.info(
+                f'Trimming conversation history: removing {messages_to_remove} '
+                f'old messages (keeping last {MAX_HISTORY_MESSAGES})'
+            )
+            self.conversation_history = self.conversation_history[-MAX_HISTORY_MESSAGES:]
 
     def add_tool_result(
         self, tool_call_id: str, function_name: str, result: str

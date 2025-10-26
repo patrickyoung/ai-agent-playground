@@ -120,6 +120,19 @@ class DesktopAgent:
         self.task_history: List[Task] = []
         self.statistics = AgentStatistics()
 
+        # Dictionary dispatch for tool execution (faster than if/elif chain)
+        self._tool_handlers: Dict[str, Any] = {
+            'launch_application': self._tool_launch_application,
+            'close_application': self._tool_close_application,
+            'create_file': self._tool_create_file,
+            'delete_file': self._tool_delete_file,
+            'list_files': self._tool_list_files,
+            'open_file': self._tool_open_file,
+            'navigate_browser': self._tool_navigate_browser,
+            'get_system_status': self._tool_get_system_status,
+            'get_running_applications': self._tool_get_running_applications,
+        }
+
         logger.info('DesktopAgent initialized with OpenAI integration')
 
     def process_command(self, command: str) -> Task:
@@ -217,29 +230,14 @@ class DesktopAgent:
         logger.info(f'Executing tool: {function_name} with args: {arguments}')
 
         try:
-            # Route to appropriate desktop operation
-            if function_name == 'launch_application':
-                return self._tool_launch_application(arguments)
-            elif function_name == 'close_application':
-                return self._tool_close_application(arguments)
-            elif function_name == 'create_file':
-                return self._tool_create_file(arguments)
-            elif function_name == 'delete_file':
-                return self._tool_delete_file(arguments)
-            elif function_name == 'list_files':
-                return self._tool_list_files(arguments)
-            elif function_name == 'open_file':
-                return self._tool_open_file(arguments)
-            elif function_name == 'navigate_browser':
-                return self._tool_navigate_browser(arguments)
-            elif function_name == 'get_system_status':
-                return self._tool_get_system_status(arguments)
-            elif function_name == 'get_running_applications':
-                return self._tool_get_running_applications(arguments)
-            else:
+            # Route to appropriate desktop operation using dictionary dispatch
+            handler = self._tool_handlers.get(function_name)
+            if not handler:
                 error_msg = f'Unknown tool: {function_name}'
                 logger.error(error_msg)
                 raise ToolExecutionError(error_msg)
+
+            return handler(arguments)
 
         except ToolExecutionError:
             # Re-raise our own errors

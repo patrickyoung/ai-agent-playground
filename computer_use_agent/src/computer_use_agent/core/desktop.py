@@ -6,7 +6,7 @@ file system, and system state management.
 
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 
 @dataclass
