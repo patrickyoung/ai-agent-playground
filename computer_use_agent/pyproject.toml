@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "computer-use-agent"
-version = "1.0.0"
-description = "A production-ready AI agent for desktop automation using natural language"
+version = "2.0.0"
+description = "OpenAI-powered desktop automation agent using Responses API with computer use capabilities"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
@@ -23,9 +23,12 @@ keywords = [
     "agent",
     "automation",
     "desktop",
-    "nlp",
-    "natural-language",
+    "openai",
+    "responses-api",
+    "computer-use",
     "task-automation",
+    "gpt-4",
+    "tool-calling",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -42,8 +45,10 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-# No external dependencies - pure Python implementation
-dependencies = []
+# OpenAI integration for intelligent task processing
+dependencies = [
+    "openai>=1.54.0",  # OpenAI Responses API support
+]
 
 [project.optional-dependencies]
 dev = [

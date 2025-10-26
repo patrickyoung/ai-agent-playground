@@ -15,6 +15,9 @@ class Settings:
     """Application configuration settings.
 
     Attributes:
+        openai_api_key: OpenAI API key for authentication.
+        openai_model: Model to use for completions.
+        openai_organization: Optional OpenAI organization ID.
         log_level: Logging verbosity level.
         log_file: Optional path to log file.
         enable_console_log: Whether to log to console.
@@ -22,6 +25,9 @@ class Settings:
         simulation_delay: Delay in seconds to simulate processing.
     """
 
+    openai_api_key: str = ''
+    openai_model: str = 'gpt-4o'
+    openai_organization: Optional[str] = None
     log_level: str = 'INFO'
     log_file: Optional[Path] = None
     enable_console_log: bool = True
@@ -33,6 +39,9 @@ class Settings:
         """Create settings from environment variables.
 
         Environment variables:
+            OPENAI_API_KEY: OpenAI API key (required)
+            OPENAI_MODEL: Model to use (default: gpt-4o)
+            OPENAI_ORGANIZATION: Optional organization ID
             AGENT_LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR)
             AGENT_LOG_FILE: Path to log file
             AGENT_CONSOLE_LOG: Enable console logging (true/false)
@@ -46,6 +55,9 @@ class Settings:
         log_file = Path(log_file_str) if log_file_str else None
 
         return cls(
+            openai_api_key=os.getenv('OPENAI_API_KEY', ''),
+            openai_model=os.getenv('OPENAI_MODEL', 'gpt-4o'),
+            openai_organization=os.getenv('OPENAI_ORGANIZATION'),
             log_level=os.getenv('AGENT_LOG_LEVEL', 'INFO').upper(),
             log_file=log_file,
             enable_console_log=os.getenv('AGENT_CONSOLE_LOG', 'true').lower()
