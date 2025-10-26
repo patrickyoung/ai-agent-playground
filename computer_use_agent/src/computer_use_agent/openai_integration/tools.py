@@ -160,19 +160,25 @@ def get_desktop_tools() -> List[Dict[str, Any]]:
             'type': 'function',
             'function': {
                 'name': 'navigate_browser',
-                'description': 'Navigate the browser to a URL or search query',
+                'description': (
+                    'Navigate the browser to a URL or perform a web search. '
+                    'Provide either url parameter for direct navigation, or '
+                    'search_query parameter to search. Exactly one must be provided.'
+                ),
                 'parameters': {
                     'type': 'object',
                     'properties': {
                         'url': {
                             'type': 'string',
-                            'description': 'The URL to navigate to',
+                            'description': 'The URL to navigate to (e.g., https://example.com)',
                         },
                         'search_query': {
                             'type': 'string',
-                            'description': 'Search query if performing a web search',
+                            'description': 'Search query to look up in the browser',
                         },
                     },
+                    # Note: OpenAI function calling doesn't support oneOf/anyOf well,
+                    # so validation is done in the implementation
                 },
             },
         },

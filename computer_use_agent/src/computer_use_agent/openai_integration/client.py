@@ -49,10 +49,22 @@ class OpenAIClient:
         Raises:
             ValueError: If api_key is empty or None.
         """
+        # Validate API key
         if not api_key:
             raise ValueError('OpenAI API key is required')
 
-        self.client = OpenAI(api_key=api_key, organization=organization)
+        if not api_key.startswith('sk-'):
+            raise ValueError(
+                'OpenAI API key must start with "sk-". '
+                'Get your key at https://platform.openai.com/api-keys'
+            )
+
+        # Initialize client
+        try:
+            self.client = OpenAI(api_key=api_key, organization=organization)
+        except Exception as e:
+            raise ValueError(f'Failed to initialize OpenAI client: {e}') from e
+
         self.model = model
         self.tools = get_desktop_tools()
         self.conversation_history: List[Dict[str, Any]] = []
@@ -101,14 +113,28 @@ class OpenAIClient:
             # Update conversation history
             self.conversation_history.append({'role': 'user', 'content': command})
 
-            # Add assistant response to history
-            if response.choices[0].message.content:
-                self.conversation_history.append(
+            # Add complete assistant response to history (including tool_calls if present)
+            assistant_message = response.choices[0].message
+            history_entry: Dict[str, Any] = {
+                'role': 'assistant',
+                'content': assistant_message.content,
+            }
+
+            # CRITICAL: Include tool calls in history if present
+            if assistant_message.tool_calls:
+                history_entry['tool_calls'] = [
                     {
-                        'role': 'assistant',
-                        'content': response.choices[0].message.content,
+                        'id': tc.id,
+                        'type': 'function',
+                        'function': {
+                            'name': tc.function.name,
+                            'arguments': tc.function.arguments,
+                        },
                     }
-                )
+                    for tc in assistant_message.tool_calls
+                ]
+
+            self.conversation_history.append(history_entry)
 
             logger.info('Command processed successfully')
             return response

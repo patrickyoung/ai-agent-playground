@@ -226,7 +226,7 @@ class VirtualDesktop:
         self.system_info.update()
         return self.system_info
 
-    def get_state_summary(self) -> Dict[str, any]:
+    def get_state_summary(self) -> Dict[str, Any]:
         """Get a summary of the current desktop state.
 
         Returns:

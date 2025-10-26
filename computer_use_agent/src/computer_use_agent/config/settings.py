@@ -4,10 +4,47 @@ This module defines configuration settings for the agent system.
 Following the principle of explicit configuration.
 """
 
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+
+def _safe_int(value: str, default: int) -> int:
+    """Safely parse integer from environment variable.
+
+    Args:
+        value: String value to parse.
+        default: Default value if parsing fails.
+
+    Returns:
+        Parsed integer or default value.
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        logger.warning(f'Invalid integer value "{value}", using default {default}')
+        return default
+
+
+def _safe_float(value: str, default: float) -> float:
+    """Safely parse float from environment variable.
+
+    Args:
+        value: String value to parse.
+        default: Default value if parsing fails.
+
+    Returns:
+        Parsed float or default value.
+    """
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        logger.warning(f'Invalid float value "{value}", using default {default}')
+        return default
 
 
 @dataclass
@@ -62,8 +99,8 @@ class Settings:
             log_file=log_file,
             enable_console_log=os.getenv('AGENT_CONSOLE_LOG', 'true').lower()
             == 'true',
-            max_task_history=int(os.getenv('AGENT_MAX_HISTORY', '100')),
-            simulation_delay=float(os.getenv('AGENT_SIM_DELAY', '0.1')),
+            max_task_history=_safe_int(os.getenv('AGENT_MAX_HISTORY', '100'), 100),
+            simulation_delay=_safe_float(os.getenv('AGENT_SIM_DELAY', '0.1'), 0.1),
         )
 
 

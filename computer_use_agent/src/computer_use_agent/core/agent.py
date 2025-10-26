@@ -10,12 +10,22 @@ import json
 import logging
 from typing import Any, Dict, List, Optional
 
+from openai.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+)
+
 from computer_use_agent.config.settings import get_settings
 from computer_use_agent.core.desktop import VirtualDesktop
 from computer_use_agent.models.task import Task, TaskStatus, TaskType
 from computer_use_agent.openai_integration.client import OpenAIClient
 
 logger = logging.getLogger(__name__)
+
+
+class ToolExecutionError(Exception):
+    """Exception raised when tool execution fails."""
+
+    pass
 
 
 class AgentStatistics:
@@ -182,7 +192,7 @@ class DesktopAgent:
 
         return task
 
-    def _execute_tool(self, tool_call: Any) -> str:
+    def _execute_tool(self, tool_call: ChatCompletionMessageToolCall) -> str:
         """Execute a tool call from OpenAI on the virtual desktop.
 
         Args:
@@ -190,9 +200,19 @@ class DesktopAgent:
 
         Returns:
             Result message from tool execution.
+
+        Raises:
+            ToolExecutionError: If tool execution fails.
         """
         function_name = tool_call.function.name
-        arguments = json.loads(tool_call.function.arguments)
+
+        # Parse JSON arguments with error handling
+        try:
+            arguments = json.loads(tool_call.function.arguments)
+        except json.JSONDecodeError as e:
+            error_msg = f'Invalid JSON arguments from OpenAI for {function_name}: {e}'
+            logger.error(error_msg)
+            raise ToolExecutionError(error_msg) from e
 
         logger.info(f'Executing tool: {function_name} with args: {arguments}')
 
@@ -217,11 +237,17 @@ class DesktopAgent:
             elif function_name == 'get_running_applications':
                 return self._tool_get_running_applications(arguments)
             else:
-                return f'Unknown tool: {function_name}'
+                error_msg = f'Unknown tool: {function_name}'
+                logger.error(error_msg)
+                raise ToolExecutionError(error_msg)
 
+        except ToolExecutionError:
+            # Re-raise our own errors
+            raise
         except Exception as e:
-            logger.exception(f'Error executing tool {function_name}')
-            return f'Error: {str(e)}'
+            error_msg = f'Failed to execute {function_name}: {str(e)}'
+            logger.exception(f'Tool execution error: {function_name}')
+            raise ToolExecutionError(error_msg) from e
 
     # Tool implementation methods
 
@@ -272,16 +298,35 @@ class DesktopAgent:
         return f'File {filename} not found in {directory}'
 
     def _tool_navigate_browser(self, args: Dict[str, Any]) -> str:
-        """Navigate browser."""
-        # Ensure browser is running
-        if 'browser' not in self.desktop.running_apps:
-            self.desktop.launch_application('browser')
+        """Navigate browser to URL or search query.
 
+        Requires either 'url' or 'search_query' parameter.
+        """
+        # Validate at least one parameter is provided
+        if 'url' not in args and 'search_query' not in args:
+            return 'Error: Either url or search_query is required'
+
+        # Launch browser if not running
+        if 'browser' not in self.desktop.running_apps:
+            if not self.desktop.launch_application('browser'):
+                return 'Error: Failed to launch browser'
+
+        # Handle URL navigation
         if 'url' in args:
-            return f'Navigated to {args["url"]}'
-        elif 'search_query' in args:
-            return f'Searched for "{args["search_query"]}"'
-        return 'Opened browser'
+            url = args['url']
+            # Validate URL format
+            if not url.startswith(('http://', 'https://', 'www.')):
+                return f'Error: Invalid URL format: {url}'
+            return f'Navigated to {url}'
+
+        # Handle search query
+        if 'search_query' in args:
+            query = args['search_query']
+            if not query.strip():
+                return 'Error: Search query cannot be empty'
+            return f'Searched for "{query}"'
+
+        return 'Opened browser'  # Fallback (shouldn't reach here)
 
     def _tool_get_system_status(self, args: Dict[str, Any]) -> str:
         """Get system status."""
