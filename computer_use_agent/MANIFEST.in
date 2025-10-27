@@ -1,0 +1,16 @@
+# Include documentation and configuration files
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include all Python files
+recursive-include src *.py
+recursive-include tests *.py
+
+# Include type hints
+include src/computer_use_agent/py.typed
+
+# Exclude compiled and cached files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
