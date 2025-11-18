@@ -20,7 +20,7 @@ defmodule AgentBase.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :inets, :ssl],
       mod: {AgentBase.Application, []}
     ]
   end
@@ -32,10 +32,18 @@ defmodule AgentBase.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # HTTP client with streaming support
+      {:req, "~> 0.5"},
+      # JSON encoding/decoding
+      {:jason, "~> 1.4"},
+      # Options validation
+      {:nimble_options, "~> 1.1"},
+
       # Development and testing
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 
